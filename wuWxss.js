@@ -65,7 +65,10 @@ function doWxss(dir,cb){
 	}
 	function runVM(name,code){
 		let wxAppCode={},handle={cssFile:name};
-		let vm=new VM({sandbox:Object.assign(new GwxCfg(),{__wxAppCode__:wxAppCode,setCssToHead:cssRebuild.bind(handle)})});
+		//Solve problem: $gwx is not defined. Ref: https://www.yuchunlai.com/index.php/archives/33/
+	    let gg = new GwxCfg();
+	    let tsandbox ={$gwx:GwxCfg.prototype["$gwx"],__mainPageFrameReady__:GwxCfg.prototype["$gwx"],__wxAppCode__:wxAppCode,setCssToHead:cssRebuild.bind(handle)};
+	    let vm = new VM({sandbox:tsandbox});
 		vm.run(code);
 		for(let name in wxAppCode)if(name.endsWith(".wxss")){
 			handle.cssFile=path.resolve(frameName,"..",name);
